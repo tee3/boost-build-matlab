@@ -1,0 +1,81 @@
+import os ;
+
+matlab-root = ;
+if [ os.name ] = MACOSX
+{
+  matlab-root = /Applications/MATLAB_R2017a.app ;
+}
+else
+{
+  # other operating systems
+}
+
+matlab-bin = ;
+if [ os.name ] = MACOSX
+{
+  matlab-bin = $(matlab-root)/bin/matlab ;
+}
+else
+{
+  # other operating systems
+}
+
+matlab-lib = ;
+if [ os.name ] = MACOSX
+{
+  matlab-lib = $(matlab-root)/bin/maci64 ;
+}
+else
+{
+  # other operating systems
+}
+
+matlab-include = $(matlab-root)/extern/include ;
+
+alias matlab
+  : # sources
+    matlab-engine
+    matlab-mex
+    matlab-mat
+    matlab-mx
+  ;
+
+lib matlab-engine
+  : # sources
+  : # requirements
+    <name>eng
+    <search>$(matlab-lib)
+  : # default-build
+  : # usage-requirements
+    <include>$(matlab-include)
+  ;
+
+lib matlab-mex
+  : # sources
+  : # requirements
+    <name>mex
+    <search>$(matlab-lib)
+  : # default-build
+  : # usage-requirements
+    <include>$(matlab-include)
+  ;
+
+lib matlab-mat
+  : # sources
+  : # requirements
+    <name>mat
+    <search>$(matlab-lib)
+  : # default-build
+  : # usage-requirements
+    <include>$(matlab-include)
+  ;
+
+lib matlab-mx
+  : # sources
+  : # requirements
+    <name>mx
+    <search>$(matlab-lib)
+  : # default-build
+  : # usage-requirements
+    <include>$(matlab-include)
+  ;
