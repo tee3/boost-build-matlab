@@ -34,13 +34,13 @@ matlab-include = $(matlab-root)/extern/include ;
 
 alias matlab
   : # sources
-    matlab-engine
+    matlab-eng
     matlab-mex
     matlab-mat
     matlab-mx
   ;
 
-lib matlab-engine
+lib matlab-eng
   : # sources
   : # requirements
     <name>eng

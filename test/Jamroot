@@ -4,7 +4,7 @@ import modules ;
 
 modules.load matlab : ../matlab.jam ;
 
-run test_engine.cpp matlab-engine : [ modules.peek matlab : matlab-bin ] ;
+run test_eng.cpp matlab-eng : [ modules.peek matlab : matlab-bin ] ;
 run test_mex.cpp matlab-mex ;
 run test_mat.cpp matlab-mat ;
 run test_mx.cpp matlab-mx ;
