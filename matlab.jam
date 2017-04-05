@@ -1,81 +1,147 @@
 import os ;
+import project ;
+import errors ;
 
-matlab-root = ;
-if [ os.name ] = MACOSX
-{
-  matlab-root = /Applications/MATLAB_R2017a.app ;
-}
-else
-{
-  # other operating systems
-}
+project.initialize $(__name__) ;
+project matlab ;
 
-matlab-bin = ;
-if [ os.name ] = MACOSX
+# Save the project so that we tolerate 'import + using' combo.
+.project = [ project.current ] ;
+
+# Helper utils for easy debug output
+if [ MATCH (--debug-configuration) : [ modules.peek : ARGV ] ]
 {
-  matlab-bin = $(matlab-root)/bin/matlab ;
-}
-else
-{
-  # other operating systems
+  .debug-configuration = TRUE ;
 }
 
-matlab-lib = ;
-if [ os.name ] = MACOSX
+rule init ( version ? : root ? )
 {
-  matlab-lib = $(matlab-root)/bin/maci64 ;
+  project.push-current $(.project) ;
+
+  .matlab-version = $(version) ;
+
+  .matlab-root = $(root) ;
+  if ! $(.matlab-root)
+  {
+    if $(.matlab-version)
+    {
+      if [ os.name ] = MACOSX
+      {
+        .matlab-root = /Applications/MATLAB_$(.matlab-version).app ;
+      }
+      else
+      {
+        errors.error "unsupported operating system." ;
+      }
+    }
+    else
+    {
+      # @todo find a MATLAB installation
+      .matlab-root = /Applications/MATLAB_R2017a.app ;
+    }
+  }
+
+  if ! $(.matlab-root)
+  {
+    errors.user-error "did not find MATLAB" ;
+  }
+
+  # check the matlab version
+  if $(.matlab-version)
+  {
+    if [ os.name ] = MACOSX
+    {
+      local m = [ MATCH "MATLAB_(R[0-9][0-9][0-9][0-9][a-z])" : $(.matlab-root) ] ;
+
+      local v = ;
+      if $(m)
+      {
+        v = $(m[0]) ;
+      }
+
+      if $(v) != $(.matlab-version)
+      {
+        errors.user-error "detected version $(v) does not match requested version $(version)" ;
+      }
+    }
+  }
+
+  .matlab-bin = $(.matlab-root)/bin/matlab ;
+
+  .matlab-lib = ;
+  if [ os.name ] = MACOSX
+  {
+    .matlab-lib = $(.matlab-root)/bin/maci64 ;
+  }
+  else
+  {
+    errors.error "unsupported operating systems." ;
+  }
+
+  .matlab-include = $(.matlab-root)/extern/include ;
+
+  if $(.debug-configuration) = TRUE
+  {
+    echo "notice: using $(.matlab-version) at $(.matlab-root) " ;
+  }
+
+  alias matlab
+    : # sources
+      eng
+      mex
+      mat
+      mx
+    ;
+
+  lib eng
+    : # sources
+    : # requirements
+      <name>eng
+      <search>$(.matlab-lib)
+    : # default-build
+    : # usage-requirements
+      <include>$(.matlab-include)
+    ;
+
+  lib mex
+    : # sources
+    : # requirements
+      <name>mex
+      <search>$(.matlab-lib)
+    : # default-build
+    : # usage-requirements
+      <include>$(.matlab-include)
+    ;
+
+  lib mat
+    : # sources
+    : # requirements
+      <name>mat
+      <search>$(.matlab-lib)
+    : # default-build
+    : # usage-requirements
+      <include>$(.matlab-include)
+    ;
+
+  lib mx
+    : # sources
+    : # requirements
+      <name>mx
+      <search>$(.matlab-lib)
+    : # default-build
+    : # usage-requirements
+      <include>$(.matlab-include)
+    ;
+
+    project.pop-current ;
 }
-else
+
+rule root ( )
 {
-  # other operating systems
+  return $(.matlab-root) ;
 }
 
-matlab-include = $(matlab-root)/extern/include ;
-
-alias matlab
-  : # sources
-    matlab-eng
-    matlab-mex
-    matlab-mat
-    matlab-mx
-  ;
-
-lib matlab-eng
-  : # sources
-  : # requirements
-    <name>eng
-    <search>$(matlab-lib)
-  : # default-build
-  : # usage-requirements
-    <include>$(matlab-include)
-  ;
-
-lib matlab-mex
-  : # sources
-  : # requirements
-    <name>mex
-    <search>$(matlab-lib)
-  : # default-build
-  : # usage-requirements
-    <include>$(matlab-include)
-  ;
-
-lib matlab-mat
-  : # sources
-  : # requirements
-    <name>mat
-    <search>$(matlab-lib)
-  : # default-build
-  : # usage-requirements
-    <include>$(matlab-include)
-  ;
-
-lib matlab-mx
-  : # sources
-  : # requirements
-    <name>mx
-    <search>$(matlab-lib)
-  : # default-build
-  : # usage-requirements
-    <include>$(matlab-include)
-  ;
+rule executable ( )
+{
+  return $(.matlab-bin) ;
+}

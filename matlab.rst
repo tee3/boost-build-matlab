@@ -30,6 +30,14 @@ Usage
 
    # project-config.jam
 
-   modules.load matlab : /path/to/matlab.jam ;
+   using matlab ;
+   using matlab : R2017a ;
+   using matlab : : /Applications/MATLAB_R2017a.app ;
+   using matlab : R2017a : /Applications/MATLAB_R2017a.app ;
 
-   exe test_matlab.cpp matlab-engine ;
+   exe test_matlab.cpp /matlab//matlab ;
+
+   exe test_matlab.cpp /matlab//eng ;
+   exe test_matlab.cpp /matlab//mex ;
+   exe test_matlab.cpp /matlab//mat ;
+   exe test_matlab.cpp /matlab//mx ;

@@ -1,0 +1,12 @@
+# @todo HACK - add tools to the Boost.Build path
+{
+  import modules ;
+
+  local x = [ modules.peek : BOOST_BUILD_PATH ] ;
+  modules.poke : BOOST_BUILD_PATH : .. $(x) ;
+}
+
+using matlab ;
+#using matlab : R2017a ;
+#using matlab : R2017a : /Applications/MATLAB_R2017a.app ;
+#using matlab : : /Applications/MATLAB_R2017a.app ;
