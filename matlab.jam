@@ -31,7 +31,7 @@ rule init ( version ? : root ? )
       }
       else
       {
-        errors.error "unsupported operating system." ;
+        errors.warning "unsupported operating system." ;
       }
     }
     else
@@ -75,7 +75,7 @@ rule init ( version ? : root ? )
   }
   else
   {
-    errors.error "unsupported operating systems." ;
+    errors.warning "unsupported operating system." ;
   }
 
   .matlab-include = $(.matlab-root)/extern/include ;
