@@ -18,16 +18,16 @@ rule init ( version ? : root ? )
 {
   project.push-current $(.project) ;
 
-  .matlab-version = $(version) ;
+  local matlab-version = $(version) ;
 
-  .matlab-root = $(root) ;
-  if ! $(.matlab-root)
+  local matlab-root = $(root) ;
+  if ! $(matlab-root)
   {
-    if $(.matlab-version)
+    if $(matlab-version)
     {
       if [ os.name ] = MACOSX
       {
-        .matlab-root = /Applications/MATLAB_$(.matlab-version).app ;
+        matlab-root = /Applications/MATLAB_$(matlab-version).app ;
       }
       else
       {
@@ -37,21 +37,21 @@ rule init ( version ? : root ? )
     else
     {
       # @todo find a MATLAB installation
-      .matlab-root = /Applications/MATLAB_R2017a.app ;
+      matlab-root = /Applications/MATLAB_R2017a.app ;
     }
   }
 
-  if ! $(.matlab-root)
+  if ! $(matlab-root)
   {
     errors.user-error "did not find MATLAB" ;
   }
 
   # check the matlab version
-  if $(.matlab-version)
+  if $(matlab-version)
   {
     if [ os.name ] = MACOSX
     {
-      local m = [ MATCH "MATLAB_(R[0-9][0-9][0-9][0-9][a-z])" : $(.matlab-root) ] ;
+      local m = [ MATCH "MATLAB_(R[0-9][0-9][0-9][0-9][a-z])" : $(matlab-root) ] ;
 
       local v = ;
       if $(m)
@@ -59,30 +59,30 @@ rule init ( version ? : root ? )
         v = $(m[0]) ;
       }
 
-      if $(v) != $(.matlab-version)
+      if $(v) != $(matlab-version)
       {
         errors.user-error "detected version $(v) does not match requested version $(version)" ;
       }
     }
   }
 
-  .matlab-bin = $(.matlab-root)/bin/matlab ;
+  local matlab-bin = $(matlab-root)/bin/matlab ;
 
-  .matlab-lib = ;
+  local matlab-lib = ;
   if [ os.name ] = MACOSX
   {
-    .matlab-lib = $(.matlab-root)/bin/maci64 ;
+    matlab-lib = $(matlab-root)/bin/maci64 ;
   }
   else
   {
     errors.warning "unsupported operating system." ;
   }
 
-  .matlab-include = $(.matlab-root)/extern/include ;
+  local matlab-include = $(matlab-root)/extern/include ;
 
   if $(.debug-configuration) = TRUE
   {
-    echo "notice: using MATLAB version (" $(.matlab-version) ") at" $(.matlab-root) ;
+    echo "notice: using MATLAB version (" $(matlab-version) ") at" $(matlab-root) ;
   }
 
   alias matlab
@@ -97,43 +97,46 @@ rule init ( version ? : root ? )
     : # sources
     : # requirements
       <name>eng
-      <search>$(.matlab-lib)
+      <search>$(matlab-lib)
     : # default-build
     : # usage-requirements
-      <include>$(.matlab-include)
+      <include>$(matlab-include)
     ;
 
   lib mex
     : # sources
     : # requirements
       <name>mex
-      <search>$(.matlab-lib)
+      <search>$(matlab-lib)
     : # default-build
     : # usage-requirements
-      <include>$(.matlab-include)
+      <include>$(matlab-include)
     ;
 
   lib mat
     : # sources
     : # requirements
       <name>mat
-      <search>$(.matlab-lib)
+      <search>$(matlab-lib)
     : # default-build
     : # usage-requirements
-      <include>$(.matlab-include)
+      <include>$(matlab-include)
     ;
 
   lib mx
     : # sources
     : # requirements
       <name>mx
-      <search>$(.matlab-lib)
+      <search>$(matlab-lib)
     : # default-build
     : # usage-requirements
-      <include>$(.matlab-include)
+      <include>$(matlab-include)
     ;
 
-    project.pop-current ;
+  .matlab-root = $(matlab-root) ;
+  .matlab-bin = $(matlab-bin) ;
+
+  project.pop-current ;
 }
 
 rule root ( )
