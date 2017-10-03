@@ -82,7 +82,7 @@ rule init ( version ? : root ? )
 
   if $(.debug-configuration) = TRUE
   {
-    echo "notice: using $(.matlab-version) at $(.matlab-root) " ;
+    echo "notice: using MATLAB version (" $(.matlab-version) ") at" $(.matlab-root) ;
   }
 
   alias matlab
