@@ -1,5 +1,6 @@
 import os ;
 import project ;
+import common ;
 import path ;
 import errors ;
 
@@ -15,75 +16,55 @@ if [ MATCH (--debug-configuration) : [ modules.peek : ARGV ] ]
   .debug-configuration = TRUE ;
 }
 
-rule init ( version ? : root ? )
+rule init ( version ? : command * : options * )
 {
   project.push-current $(.project) ;
 
-  local matlab-version = $(version) ;
+  command = [ common.get-invocation-command matlab : matlab : $(command) ] ;
 
-  local matlab-root = $(root) ;
-  if ! $(matlab-root)
+  if $(command)
   {
-    if $(matlab-version)
+    local output-lines = [ SPLIT_BY_CHARACTERS [ SHELL "\"$(command)\" -n" ] : "\n" ] ;
+
+    local detected-version-components = [ MATCH "(R[0-9][0-9][0-9][0-9][a-z])" : $(output-lines) ] ;
+    local detected-version = $(detected-version-components[1]) ;
+
+    if ! $(detected-version)
     {
-      if [ os.name ] = MACOSX
+      errors.user-error "matlab: no version detected" ;
+    }
+
+    if $(version)
+    {
+      if $(detected-version) != $(version)
       {
-        matlab-root = /Applications/MATLAB_$(matlab-version).app ;
-      }
-      else
-      {
-        errors.warning "unsupported operating system." ;
+        errors.user-error "matlab: detected version (" $(detected-version) ") does not match desired (" $(version) ")" ;
       }
     }
-    else
+
+    if $(detected-version)
     {
-      # @todo find a MATLAB installation
-      matlab-root = /Applications/MATLAB_R2017a.app ;
+      version = $(detected-version) ;
     }
-  }
-
-  if ! $(matlab-root)
-  {
-    errors.user-error "did not find MATLAB" ;
-  }
-
-  # check the matlab version
-  if $(matlab-version)
-  {
-    if [ os.name ] = MACOSX
-    {
-      local m = [ MATCH "MATLAB_(R[0-9][0-9][0-9][0-9][a-z])" : $(matlab-root) ] ;
-
-      local v = ;
-      if $(m)
-      {
-        v = $(m[0]) ;
-      }
-
-      if $(v) != $(matlab-version)
-      {
-        errors.user-error "detected version $(v) does not match requested version $(version)" ;
-      }
-    }
-  }
-
-  local matlab-bin = [ path.join $(matlab-root) bin matlab ] ;
-
-  local matlab-lib = ;
-  if [ os.name ] = MACOSX
-  {
-    matlab-lib = [ path.join $(matlab-root) bin maci64 ] ;
   }
   else
   {
-    errors.warning "unsupported operating system." ;
+    errors.user-error "matlab: matlab not found at" $(command) ;
   }
 
+  local output-lines = [ SPLIT_BY_CHARACTERS [ SHELL "\"$(command)\" -n" ] : "\n" ] ;
+
+  local matlab-root-components = [ MATCH "MATLAB += +(.+)" : $(output-lines) ] ;
+  local matlab-arch-components = [ MATCH "ARCH += +(.+)" : $(output-lines) ] ;
+
+  local matlab-root = $(matlab-root-components[1]) ;
+  local matlab-arch = $(matlab-arch-components[1]) ;
+  local matlab-lib = [ path.join $(matlab-root) bin $(matlab-arch) ] ;
   local matlab-include = [ path.join $(matlab-root) extern include ] ;
 
   if $(.debug-configuration) = TRUE
   {
-    echo "notice: using MATLAB version (" $(matlab-version) ") at" $(matlab-root) ;
+    echo "notice: using MATLAB $(version) at $(matlab-root) " ;
   }
 
   alias matlab
@@ -135,7 +116,7 @@ rule init ( version ? : root ? )
     ;
 
   .matlab-root = $(matlab-root) ;
-  .matlab-bin = $(matlab-bin) ;
+  .matlab-bin = [ path.join [ common.get-absolute-tool-path $(command) ] matlab ] ;
 
   project.pop-current ;
 }
