@@ -1,5 +1,6 @@
 import os ;
 import project ;
+import path ;
 import errors ;
 
 project.initialize $(__name__) ;
@@ -66,19 +67,19 @@ rule init ( version ? : root ? )
     }
   }
 
-  local matlab-bin = $(matlab-root)/bin/matlab ;
+  local matlab-bin = [ path.join $(matlab-root) bin matlab ] ;
 
   local matlab-lib = ;
   if [ os.name ] = MACOSX
   {
-    matlab-lib = $(matlab-root)/bin/maci64 ;
+    matlab-lib = [ path.join $(matlab-root) bin maci64 ] ;
   }
   else
   {
     errors.warning "unsupported operating system." ;
   }
 
-  local matlab-include = $(matlab-root)/extern/include ;
+  local matlab-include = [ path.join $(matlab-root) extern include ] ;
 
   if $(.debug-configuration) = TRUE
   {
