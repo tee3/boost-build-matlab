@@ -31,14 +31,14 @@ rule init ( version ? : command * : options * )
 
     if ! $(detected-version)
     {
-      errors.user-error "matlab: no version detected" ;
+      errors.warning "MATLAB not detected at" $(command) ;
     }
 
     if $(version)
     {
       if $(detected-version) != $(version)
       {
-        errors.user-error "matlab: detected version (" $(detected-version) ") does not match desired (" $(version) ")" ;
+        errors.user-error "detected version of MATLAB (" $(detected-version) ") does not match desired (" $(version) ")" ;
       }
     }
 
@@ -46,77 +46,77 @@ rule init ( version ? : command * : options * )
     {
       version = $(detected-version) ;
     }
+
+    local output-lines = [ SPLIT_BY_CHARACTERS [ SHELL "\"$(command)\" -n" ] : "\n" ] ;
+
+    local matlab-root-components = [ MATCH "MATLAB += +(.+)" : $(output-lines) ] ;
+    local matlab-arch-components = [ MATCH "ARCH += +(.+)" : $(output-lines) ] ;
+
+    local matlab-root = $(matlab-root-components[1]) ;
+    local matlab-arch = $(matlab-arch-components[1]) ;
+    local matlab-lib = [ path.join $(matlab-root) bin $(matlab-arch) ] ;
+    local matlab-include = [ path.join $(matlab-root) extern include ] ;
+
+    if $(.debug-configuration) = TRUE
+    {
+      echo "notice: using MATLAB $(version) at $(matlab-root) " ;
+    }
+
+    alias matlab
+    : # sources
+    eng
+    mex
+    mat
+    mx
+    ;
+
+    lib eng
+    : # sources
+    : # requirements
+    <name>eng
+    <search>$(matlab-lib)
+    : # default-build
+    : # usage-requirements
+    <include>$(matlab-include)
+    ;
+
+    lib mex
+    : # sources
+    : # requirements
+    <name>mex
+    <search>$(matlab-lib)
+    : # default-build
+    : # usage-requirements
+    <include>$(matlab-include)
+    ;
+
+    lib mat
+    : # sources
+    : # requirements
+    <name>mat
+    <search>$(matlab-lib)
+    : # default-build
+    : # usage-requirements
+    <include>$(matlab-include)
+    ;
+
+    lib mx
+    : # sources
+    : # requirements
+    <name>mx
+    <search>$(matlab-lib)
+    : # default-build
+    : # usage-requirements
+    <include>$(matlab-include)
+    ;
+
+    .matlab-root = $(matlab-root) ;
+    .matlab-bin = [ path.join [ common.get-absolute-tool-path $(command) ] matlab ] ;
   }
   else
   {
-    errors.user-error "matlab: matlab not found at" $(command) ;
+    errors.warning "MATLAB not found" ;
   }
-
-  local output-lines = [ SPLIT_BY_CHARACTERS [ SHELL "\"$(command)\" -n" ] : "\n" ] ;
-
-  local matlab-root-components = [ MATCH "MATLAB += +(.+)" : $(output-lines) ] ;
-  local matlab-arch-components = [ MATCH "ARCH += +(.+)" : $(output-lines) ] ;
-
-  local matlab-root = $(matlab-root-components[1]) ;
-  local matlab-arch = $(matlab-arch-components[1]) ;
-  local matlab-lib = [ path.join $(matlab-root) bin $(matlab-arch) ] ;
-  local matlab-include = [ path.join $(matlab-root) extern include ] ;
-
-  if $(.debug-configuration) = TRUE
-  {
-    echo "notice: using MATLAB $(version) at $(matlab-root) " ;
-  }
-
-  alias matlab
-    : # sources
-      eng
-      mex
-      mat
-      mx
-    ;
-
-  lib eng
-    : # sources
-    : # requirements
-      <name>eng
-      <search>$(matlab-lib)
-    : # default-build
-    : # usage-requirements
-      <include>$(matlab-include)
-    ;
-
-  lib mex
-    : # sources
-    : # requirements
-      <name>mex
-      <search>$(matlab-lib)
-    : # default-build
-    : # usage-requirements
-      <include>$(matlab-include)
-    ;
-
-  lib mat
-    : # sources
-    : # requirements
-      <name>mat
-      <search>$(matlab-lib)
-    : # default-build
-    : # usage-requirements
-      <include>$(matlab-include)
-    ;
-
-  lib mx
-    : # sources
-    : # requirements
-      <name>mx
-      <search>$(matlab-lib)
-    : # default-build
-    : # usage-requirements
-      <include>$(matlab-include)
-    ;
-
-  .matlab-root = $(matlab-root) ;
-  .matlab-bin = [ path.join [ common.get-absolute-tool-path $(command) ] matlab ] ;
 
   project.pop-current ;
 }
