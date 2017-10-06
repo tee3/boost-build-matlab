@@ -1,0 +1,16 @@
+local test-dirs =
+  test/test_default
+
+  test/test_command
+  test/test_full
+  test/test_multiple
+  test/test_version
+
+  test/test_mismatch
+  test/test_missing
+  ;
+
+for d in $(test-dirs)
+{
+  build-project $(d) ;
+}
