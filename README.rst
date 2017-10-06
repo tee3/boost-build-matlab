@@ -21,10 +21,18 @@ details.
 Testing
 -------
 
-This project contains rudimentary tests for the ``matlab`` module.
-These can be run by running the following command from the root
-directory.
+This project contains tests for the ``matlab`` module.
+
+To test the minimum configuration, run the following command from the
+root directory.
 
 .. code::
 
    $ cd test/test_default && b2 --verbose-test
+
+To run all the test configurations, run the following command from the
+root directory.
+
+.. code::
+
+   $ for d in test/test_* ; do pushd ${d} ; b2 --verbose-test ; popd ; done

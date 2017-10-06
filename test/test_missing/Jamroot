@@ -1,0 +1,7 @@
+import testing ;
+
+import matlab ;
+
+path-constant source : ../src ;
+
+run $(source)/test_pass.cpp ;

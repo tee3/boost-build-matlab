@@ -1,0 +1,10 @@
+import testing ;
+
+import matlab ;
+
+path-constant source : ../src ;
+
+run $(source)/test_eng.cpp /matlab//eng : [ matlab.executable ] ;
+run $(source)/test_mex.cpp /matlab//mex ;
+run $(source)/test_mat.cpp /matlab//mat : : $(source)/test.mat ;
+run $(source)/test_mx.cpp /matlab//mx ;
