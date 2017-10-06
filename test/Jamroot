@@ -2,7 +2,9 @@ import testing ;
 
 import matlab ;
 
+path-constant source : . ;
+
 run test_eng.cpp /matlab//eng : [ matlab.executable ] ;
 run test_mex.cpp /matlab//mex ;
-run test_mat.cpp /matlab//mat ;
+run test_mat.cpp /matlab//mat : : $(source)/test.mat ;
 run test_mx.cpp /matlab//mx ;
