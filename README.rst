@@ -27,4 +27,4 @@ directory.
 
 .. code::
 
-   $ cd test && b2 --verbose-test
+   $ cd test/test_default && b2 --verbose-test
