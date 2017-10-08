@@ -1,8 +1,0 @@
-import testing ;
-
-import matlab ;
-
-run test_eng.cpp /matlab//eng : [ matlab.executable ] ;
-run test_mex.cpp /matlab//mex ;
-run test_mat.cpp /matlab//mat ;
-run test_mx.cpp /matlab//mx ;

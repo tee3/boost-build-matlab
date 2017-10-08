@@ -31,9 +31,9 @@ Usage
    # project-config.jam
 
    using matlab ;
-   using matlab : R2017a ;
-   using matlab : : /Applications/MATLAB_R2017a.app/bin/matlab ;
-   using matlab : R2017a : /Applications/MATLAB_R2017a.app/bin/matlab ;
+   using matlab : R2017b ;
+   using matlab : : /Applications/MATLAB_R2017b.app/bin/matlab ;
+   using matlab : R2017b : /Applications/MATLAB_R2017b.app/bin/matlab ;
 
    exe test_matlab.cpp /matlab//matlab ;
 

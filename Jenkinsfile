@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                sh 'cd test && bjam --verbose-test'
+                sh 'cd test/test_default && bjam --verbose-test'
             }
         }
     }
